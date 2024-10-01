@@ -1,24 +1,12 @@
-import { Canvas } from "@react-three/fiber";
-import { Vector3 } from "three";
-
 import Container from "../components/Container.tsx";
 import { Link } from "react-router-dom";
+import Scene from "../components/Scene.tsx";
 
 const LandingPage = () => {
 	return (
-		<div className="flex flex-col w-full h-screen relative">
-			<div className="h-screen w-full absolute">
-				<Canvas
-					camera={{
-						position: new Vector3(6, 2, 3),
-					}}
-				>
-					<mesh>
-						<boxGeometry args={[2, 2, 2]} />
-						<meshPhongMaterial />
-					</mesh>
-					<directionalLight intensity={0.1} />
-				</Canvas>
+		<div className="flex flex-col w-screen h-screen relative">
+			<div className="h-full w-full absolute">
+				<Scene />
 			</div>
 
 			<div className="z-10">
