@@ -1,5 +1,11 @@
-import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
-import { Center, Float, PerspectiveCamera, Stars } from "@react-three/drei";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import {
+	Center,
+	Float,
+	PerformanceMonitor,
+	PerspectiveCamera,
+	Stars,
+} from "@react-three/drei";
 
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { TGALoader } from "three/examples/jsm/loaders/TGALoader.js";
@@ -14,17 +20,7 @@ import {
 } from "three";
 
 import { useRef } from "react";
-
-function Rig() {
-	const { camera, pointer } = useThree();
-	const vec = new Vector3();
-	return useFrame(() =>
-		camera.position.lerp(
-			vec.set(pointer.x * 2, pointer.y, camera.position.z),
-			0.003
-		)
-	);
-}
+import { Perf } from "r3f-perf";
 
 function Fighter() {
 	const model = useLoader(FBXLoader, "3d/fighter/fighter.fbx");
@@ -48,9 +44,9 @@ function Planet1() {
 
 	const groupRef = useRef<Group>(null);
 
-	useFrame(() => {
-		groupRef.current!.rotation.x += 0.0005;
-		groupRef.current!.rotation.y += 0.0005;
+	useFrame((_, delta) => {
+		groupRef.current!.rotation.y += 0.2 * delta;
+		groupRef.current!.rotation.z += 0.1 * delta;
 	});
 
 	return (
@@ -70,8 +66,8 @@ function Planet2() {
 
 	const groupRef = useRef<Group>(null);
 
-	useFrame(() => {
-		groupRef.current!.rotation.y += 0.0004;
+	useFrame((_, delta) => {
+		groupRef.current!.rotation.y += 0.2 * delta;
 	});
 
 	return (
@@ -85,9 +81,21 @@ function Planet2() {
 		</group>
 	);
 }
+
+function Rig() {
+	return useFrame(({ camera, pointer }, delta) => {
+		camera.position
+			.lerp(
+				new Vector3(pointer.x, pointer.y, camera.position.z),
+				0.8 * delta
+			)
+			.clamp(new Vector3(-1.2, -1.2, 30), new Vector3(1.2, 1.2));
+	});
+}
+
 const Scene = () => {
 	return (
-		<Canvas shadows>
+		<Canvas shadows={false}>
 			<color attach="background" args={["#272727"]} />
 
 			<PerspectiveCamera
@@ -98,33 +106,35 @@ const Scene = () => {
 			<ambientLight intensity={0.7} />
 			<directionalLight position={[0, 0, 5]} />
 
-			<group>
-				<Stars
-					radius={100}
-					depth={50}
-					count={500}
-					factor={4}
-					saturation={0}
-					fade
-					speed={2}
-				/>
-
-				<Center
-					position={new Vector3(0, -4, 2)}
-					rotation={new Euler(0.1, -1, -0.1)}
-				>
-					<Float>
-						<Fighter />
-					</Float>
-				</Center>
-
+			<PerformanceMonitor>
 				<group>
-					<Planet1 />
-					<Planet2 />
-				</group>
-			</group>
+					<Stars
+						radius={100}
+						depth={50}
+						count={500}
+						factor={4}
+						saturation={0}
+						fade
+						speed={2}
+					/>
 
-			<Rig />
+					<Center
+						position={new Vector3(0, -4, 2)}
+						rotation={new Euler(0.1, -1, -0.1)}
+					>
+						<Float>
+							<Fighter />
+						</Float>
+					</Center>
+
+					<group>
+						<Planet1 />
+						<Planet2 />
+					</group>
+				</group>
+				<Rig />
+			</PerformanceMonitor>
+			<Perf />
 		</Canvas>
 	);
 };
