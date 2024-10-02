@@ -1,68 +1,115 @@
-import { MutableRefObject, useRef } from "react";
+import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
+import { Center, PerspectiveCamera, Stars } from "@react-three/drei";
 
-import { Canvas } from "@react-three/fiber";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
+import { TGALoader } from "three/examples/jsm/loaders/TGALoader.js";
+import { Euler, Group, Vector3 } from "three";
+import { useRef } from "react";
 
-import { BoxHelper, Euler, Mesh, Vector3 } from "three";
-import {
-	Box,
-	PerspectiveCamera,
-	SoftShadows,
-	useHelper,
-} from "@react-three/drei";
+function Rig() {
+	const { camera, pointer } = useThree();
+	const vec = new Vector3();
+	return useFrame(() =>
+		camera.position.lerp(
+			vec.set(pointer.x * 2, pointer.y, camera.position.z),
+			0.003
+		)
+	);
+}
 
-const BACKGROUND_COLOR = "#2674A8";
+function Fighter() {
+	const model = useLoader(FBXLoader, "3d/fighter/fighter.fbx");
 
-const Boundaries = () => {
-	const wall = useRef<Mesh>(null);
-	const ground = useRef<Mesh>(null);
+	const texture = useLoader(TGALoader, "3d/fighter/fighter_albedo.tga");
 
-	useHelper(wall as MutableRefObject<Mesh>, BoxHelper, "red");
-	useHelper(ground as MutableRefObject<Mesh>, BoxHelper, "red");
+	model.traverse((child: any) => {
+		if (child.isMesh) {
+			child.material.map = texture;
+		}
+	});
+
+	return <primitive object={model} scale={0.01} />;
+}
+
+function Planet1() {
+	const model = useLoader(FBXLoader, "3d/planet/planet1.fbx");
+
+	const groupRef = useRef<Group>(null);
+
+	useFrame(() => {
+		groupRef.current!.rotation.x += 0.0005;
+		groupRef.current!.rotation.y += 0.0005;
+	});
 
 	return (
-		<>
-			<Box
-				receiveShadow
-				args={[8, 10, 0.5]}
-				position={[2, 5, -2]}
-				ref={wall}
-			>
-				<shadowMaterial attach="material" color={BACKGROUND_COLOR} />
-			</Box>
-
-			<Box
-				receiveShadow
-				args={[8, 0.5, 10]}
-				position={[2, 0, 3]}
-				ref={ground}
-			>
-				<shadowMaterial attach="material" color={BACKGROUND_COLOR} />
-			</Box>
-		</>
+		<group
+			ref={groupRef}
+			position={new Vector3(-80, -30, -80)}
+			rotation={new Euler(0.1, -1, -0.1)}
+			scale={new Vector3(6, 6, 6)}
+		>
+			<primitive object={model} />;
+		</group>
 	);
-};
+}
 
+function Planet2() {
+	const model = useLoader(FBXLoader, "3d/planet/planet2.fbx");
+
+	const groupRef = useRef<Group>(null);
+
+	useFrame(() => {
+		groupRef.current!.rotation.y += 0.0004;
+	});
+
+	return (
+		<group
+			ref={groupRef}
+			position={new Vector3(70, 20, -60)}
+			rotation={new Euler(0.1, -1, -0.1)}
+			scale={new Vector3(6, 6, 6)}
+		>
+			<primitive object={model} />;
+		</group>
+	);
+}
 const Scene = () => {
 	return (
 		<Canvas shadows>
+			<color attach="background" args={["#272727"]} />
+
 			<PerspectiveCamera
-				position={new Vector3(13, 9, 14.5)}
-				rotation={new Euler(-0.5, 0.8, 0.4)}
-				fov={25}
 				makeDefault={true}
+				position={new Vector3(0, 0, 30)}
 			></PerspectiveCamera>
 
-			<color attach="background" args={[BACKGROUND_COLOR]} />
+			<ambientLight intensity={0.7} />
+			<directionalLight position={[0, 0, 5]} />
 
-			<directionalLight
-				position={[10, 10, 5]}
-				castShadow
-				intensity={2.2}
-			/>
+			<group>
+				<Stars
+					radius={100}
+					depth={50}
+					count={500}
+					factor={4}
+					saturation={0}
+					fade
+					speed={2}
+				/>
 
-			<SoftShadows size={52} samples={16} />
+				<Center
+					position={new Vector3(0, -3, 2)}
+					rotation={new Euler(0.1, -1, -0.1)}
+				>
+					<Fighter />
+				</Center>
 
-			<Boundaries />
+				<group>
+					<Planet1 />
+					<Planet2 />
+				</group>
+			</group>
+			<Rig />
 		</Canvas>
 	);
 };
