@@ -1,9 +1,18 @@
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
-import { Center, PerspectiveCamera, Stars } from "@react-three/drei";
+import { Center, Float, PerspectiveCamera, Stars } from "@react-three/drei";
 
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { TGALoader } from "three/examples/jsm/loaders/TGALoader.js";
-import { Euler, Group, Vector3 } from "three";
+
+import {
+	Euler,
+	Group,
+	Mesh,
+	MeshStandardMaterial,
+	Object3D,
+	Vector3,
+} from "three";
+
 import { useRef } from "react";
 
 function Rig() {
@@ -22,9 +31,12 @@ function Fighter() {
 
 	const texture = useLoader(TGALoader, "3d/fighter/fighter_albedo.tga");
 
-	model.traverse((child: any) => {
-		if (child.isMesh) {
-			child.material.map = texture;
+	model.traverse((child: Object3D) => {
+		if ((child as Mesh).isMesh) {
+			const mesh = child as Mesh;
+			const material = mesh.material as MeshStandardMaterial;
+
+			material.map = texture;
 		}
 	});
 
@@ -98,10 +110,12 @@ const Scene = () => {
 				/>
 
 				<Center
-					position={new Vector3(0, -3, 2)}
+					position={new Vector3(0, -4, 2)}
 					rotation={new Euler(0.1, -1, -0.1)}
 				>
-					<Fighter />
+					<Float>
+						<Fighter />
+					</Float>
 				</Center>
 
 				<group>
@@ -109,6 +123,7 @@ const Scene = () => {
 					<Planet2 />
 				</group>
 			</group>
+
 			<Rig />
 		</Canvas>
 	);
