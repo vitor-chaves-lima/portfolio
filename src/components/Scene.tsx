@@ -4,6 +4,8 @@ import {
 	Float,
 	PerformanceMonitor,
 	PerspectiveCamera,
+	Scroll,
+	ScrollControls,
 	Stars,
 } from "@react-three/drei";
 
@@ -20,7 +22,8 @@ import {
 } from "three";
 
 import { useRef } from "react";
-import { Perf } from "r3f-perf";
+import Interface from "./Interface.tsx";
+import Menu from "./Navbar.tsx";
 
 function Fighter() {
 	const model = useLoader(FBXLoader, "3d/fighter/fighter.fbx");
@@ -95,47 +98,56 @@ function Rig() {
 
 const Scene = () => {
 	return (
-		<Canvas shadows={false}>
-			<color attach="background" args={["#272727"]} />
+		<>
+			<Canvas shadows={false}>
+				<color attach="background" args={["#272727"]} />
 
-			<PerspectiveCamera
-				makeDefault={true}
-				position={new Vector3(0, 0, 30)}
-			></PerspectiveCamera>
+				<PerspectiveCamera
+					makeDefault={true}
+					position={new Vector3(0, 0, 30)}
+				></PerspectiveCamera>
 
-			<ambientLight intensity={0.7} />
-			<directionalLight position={[0, 0, 5]} />
+				<ambientLight intensity={0.7} />
+				<directionalLight position={[0, 0, 5]} />
 
-			<PerformanceMonitor>
-				<group>
-					<Stars
-						radius={100}
-						depth={50}
-						count={500}
-						factor={4}
-						saturation={0}
-						fade
-						speed={2}
-					/>
+				<ScrollControls pages={4} damping={0.1}>
+					<PerformanceMonitor>
+						<group>
+							<Stars
+								radius={100}
+								depth={50}
+								count={500}
+								factor={4}
+								saturation={0}
+								fade
+								speed={2}
+							/>
 
-					<Center
-						position={new Vector3(0, -4, 2)}
-						rotation={new Euler(0.1, -1, -0.1)}
-					>
-						<Float>
-							<Fighter />
-						</Float>
-					</Center>
+							<Center
+								position={new Vector3(0, -4, 2)}
+								rotation={new Euler(0.1, -1, -0.1)}
+							>
+								<Float>
+									<Fighter />
+								</Float>
+							</Center>
 
-					<group>
-						<Planet1 />
-						<Planet2 />
-					</group>
-				</group>
-				<Rig />
-			</PerformanceMonitor>
-			<Perf />
-		</Canvas>
+							<group>
+								<Planet1 />
+								<Planet2 />
+							</group>
+						</group>
+						<Rig />
+					</PerformanceMonitor>
+
+					<Scroll html>
+						<Interface />
+					</Scroll>
+				</ScrollControls>
+				{/*<Perf />*/}
+			</Canvas>
+			<Menu />
+		</>
 	);
 };
 
