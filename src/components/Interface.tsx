@@ -16,7 +16,7 @@ const HeroSection = () => {
 		<Section>
 			<Container>
 				<div className="h-screen flex flex-col justify-between text-white">
-					<div className="flex flex-col items-center gap-5 py-48">
+					<div className="flex flex-col items-center gap-5 py-52">
 						<motion.h1
 							className="bg-indigo-700 text-5xl p-4 font-bold"
 							initial={{

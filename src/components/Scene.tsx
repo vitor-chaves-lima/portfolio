@@ -21,7 +21,7 @@ import {
 	Vector3,
 } from "three";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Interface from "./Interface.tsx";
 import Menu from "./Navbar.tsx";
 
@@ -97,6 +97,8 @@ function Rig() {
 }
 
 const Scene = () => {
+	const [menuOpened, setMenuOpened] = useState(false);
+
 	return (
 		<>
 			<Canvas shadows={false}>
@@ -146,7 +148,7 @@ const Scene = () => {
 				</ScrollControls>
 				{/*<Perf />*/}
 			</Canvas>
-			<Menu />
+			<Menu menuOpened={menuOpened} setMenuOpened={setMenuOpened} />
 		</>
 	);
 };
