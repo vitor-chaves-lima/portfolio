@@ -1,4 +1,4 @@
-import { MutableRefObject, useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { Float, PerformanceMonitor, Stars } from "@react-three/drei";
 
@@ -16,12 +16,10 @@ import {
 	PerspectiveCamera,
 	Vector3,
 } from "three";
+import { useScrollAreaRef } from "../ScrollContext.tsx";
 
-const Camera = ({
-	scrollAreaRef,
-}: {
-	scrollAreaRef: MutableRefObject<HTMLDivElement>;
-}) => {
+const Camera = () => {
+	const scrollAreaRef = useScrollAreaRef();
 	const initialPosition = new Vector3(0, 0, 30);
 
 	const set = useThree(({ set }) => set);
@@ -59,13 +57,10 @@ const Camera = ({
 	);
 };
 
-function Fighter({
-	scrollAreaRef,
-}: {
-	scrollAreaRef: MutableRefObject<HTMLDivElement>;
-}) {
+function Fighter() {
 	const model = useLoader(FBXLoader, "3d/fighter/fighter.fbx");
 	const texture = useLoader(TGALoader, "3d/fighter/fighter_albedo.tga");
+	const scrollAreaRef = useScrollAreaRef();
 
 	model.traverse((child: Object3D) => {
 		if ((child as Mesh).isMesh) {
@@ -100,13 +95,10 @@ function Fighter({
 	);
 }
 
-const Planet1 = ({
-	scrollAreaRef,
-}: {
-	scrollAreaRef: MutableRefObject<HTMLDivElement>;
-}) => {
+const Planet1 = () => {
 	const model = useLoader(FBXLoader, "3d/planet/planet1.fbx");
 	const groupRef = useRef<Group>(null);
+	const scrollAreaRef = useScrollAreaRef();
 
 	const initialPosition = new Vector3(-80, -30, -80);
 
@@ -138,13 +130,10 @@ const Planet1 = ({
 	);
 };
 
-function Planet2({
-	scrollAreaRef,
-}: {
-	scrollAreaRef: MutableRefObject<HTMLDivElement>;
-}) {
+function Planet2() {
 	const model = useLoader(FBXLoader, "3d/planet/planet2.fbx");
 	const groupRef = useRef<Group>(null);
+	const scrollAreaRef = useScrollAreaRef();
 
 	const initialPosition = new Vector3(80, 20, -100);
 
@@ -174,17 +163,13 @@ function Planet2({
 	);
 }
 
-const Scene = ({
-	scrollAreaRef,
-}: {
-	scrollAreaRef: MutableRefObject<HTMLDivElement>;
-}) => {
+const Scene = () => {
 	return (
 		<div className="absolute w-screen h-screen z-0">
 			<Canvas shadows={false}>
 				<color attach="background" args={["#272727"]} />
 
-				<Camera scrollAreaRef={scrollAreaRef} />
+				<Camera />
 
 				<ambientLight intensity={0.7} />
 				<directionalLight position={[0, 0, 5]} />
@@ -201,9 +186,9 @@ const Scene = ({
 							speed={2}
 						/>
 
-						<Fighter scrollAreaRef={scrollAreaRef} />
-						<Planet1 scrollAreaRef={scrollAreaRef} />
-						<Planet2 scrollAreaRef={scrollAreaRef} />
+						<Fighter />
+						<Planet1 />
+						<Planet2 />
 					</group>
 				</PerformanceMonitor>
 
