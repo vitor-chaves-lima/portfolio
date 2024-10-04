@@ -1,31 +1,36 @@
 import { useLayoutEffect, useRef } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { Float, PerformanceMonitor, Stars } from "@react-three/drei";
-
-import { animated, useScroll } from "@react-spring/three";
-
+import { Perf } from "r3f-perf";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { TGALoader } from "three/examples/jsm/loaders/TGALoader.js";
+import { Euler, Mesh, MeshStandardMaterial, Object3D, Vector3 } from "three";
+
+import { useTransform, useSpring, useVelocity } from "framer-motion";
+
+import { motion as motion3d } from "framer-motion-3d";
 
 import {
-	Euler,
-	Group,
-	Mesh,
-	MeshStandardMaterial,
-	Object3D,
-	PerspectiveCamera,
-	Vector3,
-} from "three";
-import { useScrollAreaRef } from "../ScrollContext.tsx";
+	useScrollData,
+	useSectionProgress,
+} from "../contexts/ScrollContext.tsx";
 
 const Camera = () => {
-	const scrollAreaRef = useScrollAreaRef();
-	const initialPosition = new Vector3(0, 0, 30);
-
 	const set = useThree(({ set }) => set);
 	const camera = useThree(({ camera }) => camera);
 	const size = useThree(({ size }) => size);
-	const cameraRef = useRef<PerspectiveCamera>(null!);
+	// @ts-expect-error Fix later
+	const cameraRef = useRef<motion3d.perspectiveCamera>(null!);
+
+	const { scrollY } = useScrollData();
+	const scrollVelocity = useVelocity(scrollY);
+	const smoothVelocity = useSpring(scrollVelocity, {
+		stiffness: 12,
+		damping: 10,
+	});
+	const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], {
+		clamp: false,
+	});
 
 	useLayoutEffect(() => {
 		cameraRef.current.aspect = size.width / size.height;
@@ -41,26 +46,32 @@ const Camera = () => {
 		return () => set(() => ({ camera: oldCam }));
 	}, [camera, cameraRef, set]);
 
-	const scroll = useScroll({
-		container: scrollAreaRef,
-	});
-
 	return (
-		<animated.perspectiveCamera
+		<motion3d.perspectiveCamera
 			ref={cameraRef}
-			position={initialPosition}
 			fov={50}
-			position-y={scroll.scrollYProgress.to(
-				(val) => initialPosition.y - val * 20
-			)}
-		></animated.perspectiveCamera>
+			position-y={velocityFactor}
+			position-z={30}
+		></motion3d.perspectiveCamera>
 	);
 };
 
 function Fighter() {
 	const model = useLoader(FBXLoader, "3d/fighter/fighter.fbx");
 	const texture = useLoader(TGALoader, "3d/fighter/fighter_albedo.tga");
-	const scrollAreaRef = useScrollAreaRef();
+
+	const initialPosition = new Vector3(0, -4, 2);
+
+	const sectionProgress = useSectionProgress("hero");
+	const xPositionTransform = useTransform(
+		() => initialPosition.x + sectionProgress.get() * 35
+	);
+	const yPositionTransform = useTransform(
+		() => initialPosition.y + sectionProgress.get() * 10
+	);
+	const zPositionTransform = useTransform(
+		() => initialPosition.z + sectionProgress.get() * 35
+	);
 
 	model.traverse((child: Object3D) => {
 		if ((child as Mesh).isMesh) {
@@ -71,40 +82,33 @@ function Fighter() {
 		}
 	});
 
-	const initialPosition = new Vector3(0, -4, 2);
-
-	const scroll = useScroll({
-		container: scrollAreaRef,
-	});
-
 	return (
-		<animated.group
-			position={initialPosition}
+		<motion3d.group
 			rotation={new Euler(0.1, -1, -0.1)}
-			position-z={scroll.scrollYProgress.to(
-				(val) => initialPosition.z + val * 20
-			)}
-			position-x={scroll.scrollYProgress.to(
-				(val) => initialPosition.x + val * 20
-			)}
+			position-x={xPositionTransform}
+			position-y={yPositionTransform}
+			position-z={zPositionTransform}
 		>
 			<Float>
 				<primitive object={model} scale={0.01} />
 			</Float>
-		</animated.group>
+		</motion3d.group>
 	);
 }
 
 const Planet1 = () => {
 	const model = useLoader(FBXLoader, "3d/planet/planet1.fbx");
-	const groupRef = useRef<Group>(null);
-	const scrollAreaRef = useScrollAreaRef();
+	// @ts-expect-error Fix later
+	const groupRef = useRef<motion3d.group>(null);
 
 	const initialPosition = new Vector3(-80, -30, -80);
-
-	const scroll = useScroll({
-		container: scrollAreaRef,
-	});
+	const sectionProgress = useSectionProgress("hero");
+	const xPositionTransform = useTransform(
+		() => initialPosition.x - sectionProgress.get() * 60
+	);
+	const zPositionTransform = useTransform(
+		() => initialPosition.z + sectionProgress.get() * 20
+	);
 
 	useFrame((_, delta) => {
 		groupRef.current!.rotation.y += 0.05 * delta;
@@ -113,53 +117,48 @@ const Planet1 = () => {
 	});
 
 	return (
-		<animated.group
+		<motion3d.group
 			ref={groupRef}
-			position={initialPosition}
 			rotation={new Euler(0.1, -1, -0.1)}
 			scale={new Vector3(10, 10, 10)}
-			position-x={scroll.scrollYProgress.to(
-				(val) => initialPosition.x - val * 30
-			)}
-			position-z={scroll.scrollYProgress.to(
-				(val) => initialPosition.z + val * 30
-			)}
+			position-x={xPositionTransform}
+			position-y={initialPosition.y}
+			position-z={zPositionTransform}
 		>
 			<primitive object={model} />;
-		</animated.group>
+		</motion3d.group>
 	);
 };
 
 function Planet2() {
 	const model = useLoader(FBXLoader, "3d/planet/planet2.fbx");
-	const groupRef = useRef<Group>(null);
-	const scrollAreaRef = useScrollAreaRef();
+	// @ts-expect-error Fix later
+	const groupRef = useRef<motion3d.group>(null);
 
 	const initialPosition = new Vector3(80, 20, -100);
-
-	const scroll = useScroll({
-		container: scrollAreaRef,
-	});
+	const sectionProgress = useSectionProgress("hero");
+	const xPositionTransform = useTransform(
+		() => initialPosition.x + sectionProgress.get() * 100
+	);
+	const zPositionTransform = useTransform(
+		() => initialPosition.z - sectionProgress.get() * 20
+	);
 
 	useFrame((_, delta) => {
 		groupRef.current!.rotation.y += 0.04 * delta;
 	});
 
 	return (
-		<animated.group
+		<motion3d.group
 			ref={groupRef}
-			position={initialPosition}
 			rotation={new Euler(0.1, -1, -0.1)}
 			scale={new Vector3(12, 12, 12)}
-			position-x={scroll.scrollYProgress.to(
-				(val) => initialPosition.x + val * 100
-			)}
-			position-z={scroll.scrollYProgress.to(
-				(val) => initialPosition.z - val * 30
-			)}
+			position-x={xPositionTransform}
+			position-y={initialPosition.y}
+			position-z={zPositionTransform}
 		>
 			<primitive object={model} />;
-		</animated.group>
+		</motion3d.group>
 	);
 }
 
@@ -192,7 +191,7 @@ const Scene = () => {
 					</group>
 				</PerformanceMonitor>
 
-				{/*<Perf />*/}
+				<Perf />
 			</Canvas>
 		</div>
 	);
