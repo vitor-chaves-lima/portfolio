@@ -4,6 +4,7 @@ import Container from "../components/Container.tsx";
 import { ScrollProvider } from "../contexts/ScrollProvider.tsx";
 import SmoothScroller from "../components/SmoothScroller.tsx";
 import Scrollbar from "smooth-scrollbar";
+import { Loader } from "@react-three/drei";
 
 const Section = forwardRef<HTMLDivElement, PropsWithChildren>(
 	({ children }, ref) => (
@@ -87,6 +88,8 @@ const LandingPage = () => {
 				<ProfileSection ref={profileSectionRef} />
 				<ProfileSection ref={profileSection2Ref} />
 			</div>
+
+			<Loader />
 		</div>
 	);
 };
