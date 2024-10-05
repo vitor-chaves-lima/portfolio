@@ -97,7 +97,7 @@ export const ScrollProvider: FC<{
 				currentSectionProgress
 			);
 		},
-		[scrollData]
+		[smoothScrollRef, scrollData]
 	);
 
 	useEffect(() => {

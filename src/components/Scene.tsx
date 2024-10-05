@@ -25,10 +25,6 @@ const Camera = () => {
 	const scrollData = useScrollData();
 	const yPositionTransform = scrollData.scrollYProgress;
 
-	useFrame(() => {
-		console.log(yPositionTransform.get());
-	});
-
 	useFrame(({ camera }) => {
 		camera.position.y = yPositionTransform.get();
 		camera.updateProjectionMatrix();
@@ -82,6 +78,7 @@ function Fighter() {
 
 	return (
 		<motion3d.group
+			scale={new Vector3(0.7, 0.7, 0.7)}
 			rotation={new Euler(0.1, -1, -0.1)}
 			position-x={xPositionTransform}
 			position-y={yPositionTransform}
