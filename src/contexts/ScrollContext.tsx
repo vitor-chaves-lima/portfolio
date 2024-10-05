@@ -1,5 +1,5 @@
 import { createContext, MutableRefObject, useContext } from "react";
-import { MotionValue, ScrollMotionValues } from "framer-motion";
+import { MotionValue } from "framer-motion";
 
 export type SectionRefMap = {
 	[key: string]: MutableRefObject<HTMLDivElement>;
@@ -13,8 +13,13 @@ export type SectionProgressMap = {
 	[key: string]: MotionValue<number>;
 };
 
+export type ScrollData = {
+	scrollY: MotionValue<number>;
+	scrollYProgress: MotionValue<number>;
+};
+
 type ScrollContextType = {
-	scrollData?: ScrollMotionValues;
+	scrollData?: ScrollData;
 	currentSection?: MutableRefObject<string>;
 	sectionsProgress?: SectionProgressMap;
 };
@@ -23,6 +28,7 @@ export const ScrollContext = createContext<ScrollContextType>({});
 
 export const useScrollData = () => {
 	const context = useContext(ScrollContext);
+
 	return context.scrollData!;
 };
 

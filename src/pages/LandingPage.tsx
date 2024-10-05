@@ -2,6 +2,8 @@ import Scene from "../components/Scene.tsx";
 import { forwardRef, PropsWithChildren, useRef } from "react";
 import Container from "../components/Container.tsx";
 import { ScrollProvider } from "../contexts/ScrollProvider.tsx";
+import SmoothScroller from "../components/SmoothScroller.tsx";
+import Scrollbar from "smooth-scrollbar";
 
 const Section = forwardRef<HTMLDivElement, PropsWithChildren>(
 	({ children }, ref) => (
@@ -52,15 +54,22 @@ const ProfileSection = forwardRef<HTMLDivElement>((_, ref) => (
 ));
 
 const LandingPage = () => {
-	const scrollAreaRef = useRef<HTMLDivElement>(null!);
+	const contentContainerRef = useRef<HTMLDivElement>(null!);
+	const smoothScrollRef = useRef<Scrollbar>(null!);
+
 	const heroSectionRef = useRef<HTMLDivElement>(null!);
 	const profileSectionRef = useRef<HTMLDivElement>(null!);
 	const profileSection2Ref = useRef<HTMLDivElement>(null!);
 
 	return (
 		<div className="relative w-screen h-screen pointer-events-auto">
+			<SmoothScroller
+				contentContainerRef={contentContainerRef}
+				smoothScrollRef={smoothScrollRef}
+			/>
+
 			<ScrollProvider
-				scrollAreaRef={scrollAreaRef}
+				smoothScrollRef={smoothScrollRef}
 				sectionRefs={{
 					hero: heroSectionRef,
 					profile: profileSectionRef,
@@ -71,8 +80,8 @@ const LandingPage = () => {
 			</ScrollProvider>
 
 			<div
-				className="relative h-full z-20 overflow-y-auto overflow-x-hidden"
-				ref={scrollAreaRef}
+				className="h-full z-20 overflow-y-auto overflow-x-hidden"
+				ref={contentContainerRef}
 			>
 				<HeroSection ref={heroSectionRef} />
 				<ProfileSection ref={profileSectionRef} />

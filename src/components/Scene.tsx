@@ -6,7 +6,7 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { TGALoader } from "three/examples/jsm/loaders/TGALoader.js";
 import { Euler, Mesh, MeshStandardMaterial, Object3D, Vector3 } from "three";
 
-import { useTransform, useSpring, useVelocity } from "framer-motion";
+import { useTransform } from "framer-motion";
 
 import { motion as motion3d } from "framer-motion-3d";
 
@@ -22,23 +22,22 @@ const Camera = () => {
 	// @ts-expect-error Fix later
 	const cameraRef = useRef<motion3d.perspectiveCamera>(null!);
 
-	const { scrollY } = useScrollData();
-	const scrollVelocity = useVelocity(scrollY);
-	const smoothVelocity = useSpring(scrollVelocity, {
-		stiffness: 12,
-		damping: 10,
+	const scrollData = useScrollData();
+	const yPositionTransform = scrollData.scrollYProgress;
+
+	useFrame(() => {
+		console.log(yPositionTransform.get());
 	});
-	const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], {
-		clamp: false,
+
+	useFrame(({ camera }) => {
+		camera.position.y = yPositionTransform.get();
+		camera.updateProjectionMatrix();
+		cameraRef.current.updateProjectionMatrix();
 	});
 
 	useLayoutEffect(() => {
 		cameraRef.current.aspect = size.width / size.height;
 	}, [size]);
-
-	useLayoutEffect(() => {
-		cameraRef.current.updateProjectionMatrix();
-	});
 
 	useLayoutEffect(() => {
 		const oldCam = camera;
@@ -50,7 +49,6 @@ const Camera = () => {
 		<motion3d.perspectiveCamera
 			ref={cameraRef}
 			fov={50}
-			position-y={velocityFactor}
 			position-z={30}
 		></motion3d.perspectiveCamera>
 	);

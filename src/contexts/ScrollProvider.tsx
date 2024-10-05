@@ -1,12 +1,22 @@
-import { FC, MutableRefObject, ReactNode, useEffect, useRef } from "react";
+import {
+	FC,
+	MutableRefObject,
+	ReactNode,
+	useCallback,
+	useEffect,
+	useRef,
+} from "react";
 
-import { motionValue, useMotionValueEvent, useScroll } from "framer-motion";
+import { motionValue, transform } from "framer-motion";
+
 import {
 	ScrollContext,
+	ScrollData,
 	SectionDataMap,
 	SectionProgressMap,
 	SectionRefMap,
 } from "./ScrollContext.tsx";
+import Scrollbar from "smooth-scrollbar";
 
 const getCurrentSectionAndProgress = (
 	scrollY: number,
@@ -46,32 +56,49 @@ const getSectionProgress = (
 
 export const ScrollProvider: FC<{
 	children: ReactNode;
-	scrollAreaRef: MutableRefObject<HTMLDivElement>;
+	smoothScrollRef: MutableRefObject<Scrollbar>;
 	sectionRefs: SectionRefMap;
-}> = ({ children, scrollAreaRef, sectionRefs }) => {
+}> = ({ children, smoothScrollRef, sectionRefs }) => {
+	const scrollData: ScrollData = {
+		scrollY: motionValue(0),
+		scrollYProgress: motionValue(0),
+	};
 	const sectionsData = useRef<SectionDataMap>({});
 	const sectionKey = useRef<string>("");
 	const sectionsProgress = useRef<SectionProgressMap>({});
 
-	const handleScroll = (scrollY: number) => {
-		const currentSection = getCurrentSectionAndProgress(
-			scrollY,
-			sectionsData.current
-		);
+	const handleScroll = useCallback(
+		(scrollY: number) => {
+			const currentSection = getCurrentSectionAndProgress(
+				scrollY,
+				sectionsData.current
+			);
 
-		if (!currentSection) return;
+			if (!currentSection) return;
 
-		if (currentSection && currentSection != sectionKey.current)
-			sectionKey.current = currentSection;
+			if (currentSection && currentSection != sectionKey.current)
+				sectionKey.current = currentSection;
 
-		const currentSectionProgress = getSectionProgress(
-			scrollY,
-			sectionsData.current,
-			currentSection
-		);
+			const currentSectionProgress = getSectionProgress(
+				scrollY,
+				sectionsData.current,
+				currentSection
+			);
 
-		sectionsProgress.current[currentSection].set(currentSectionProgress);
-	};
+			scrollData.scrollY.set(scrollY);
+			scrollData.scrollYProgress.set(
+				transform(
+					scrollY,
+					[0, smoothScrollRef.current.getSize().content.height],
+					[0, 1]
+				)
+			);
+			sectionsProgress.current[currentSection].set(
+				currentSectionProgress
+			);
+		},
+		[scrollData]
+	);
 
 	useEffect(() => {
 		Object.entries(sectionRefs).forEach(([key, ref]) => {
@@ -83,17 +110,12 @@ export const ScrollProvider: FC<{
 			sectionsProgress.current[key] = motionValue<number>(0);
 		});
 
-		handleScroll(0);
-	}, [sectionRefs]);
-
-	const scrollData = useScroll({
-		container: scrollAreaRef,
-		axis: "y",
-	});
-
-	useMotionValueEvent(scrollData.scrollY, "change", (latest) => {
-		handleScroll(latest);
-	});
+		if (smoothScrollRef.current) {
+			smoothScrollRef.current.addListener((status) =>
+				handleScroll(status.offset.y)
+			);
+		}
+	}, [smoothScrollRef, sectionRefs, handleScroll]);
 
 	return (
 		<ScrollContext.Provider
