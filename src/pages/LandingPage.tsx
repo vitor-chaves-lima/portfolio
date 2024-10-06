@@ -15,6 +15,7 @@ import PythonLogo from "../assets/images/python-logo.webp";
 import GoLogo from "../assets/images/go-logo.png";
 import AWSLogo from "../assets/images/aws-logo.png";
 import TerraformLogo from "../assets/images/terraform-logo.png";
+import GitHubCalendar from "react-github-calendar";
 
 const Section = forwardRef<HTMLDivElement, PropsWithChildren>(
 	({ children }, ref) => (
@@ -58,8 +59,7 @@ const ProfileSection = forwardRef<HTMLDivElement>((_, ref) => (
 						Code is my tool, innovation is my goal
 					</h2>
 				</div>
-
-				<div className="flex gap-16 flex-wrap xl:flex-nowrap">
+				<div className="flex gap-16 flex-wrap xl:flex-nowrap mb-12">
 					<div className="w-full xl:w-1/2 text-lg text-pretty flex flex-col gap-12 items-center justify-center">
 						<p>
 							I’m Vitor, a full stack developer with a passion for
@@ -162,6 +162,12 @@ const ProfileSection = forwardRef<HTMLDivElement>((_, ref) => (
 							</ul>
 						</div>
 					</div>
+				</div>
+
+				<div className="flex p-6 flex-col justify-center items-center gap-16">
+					<h3 className="text-2xl">GitHub calendar</h3>
+
+					<GitHubCalendar username="vitor-chaves-lima" />
 				</div>
 			</div>
 		</Container>
