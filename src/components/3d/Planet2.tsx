@@ -38,4 +38,6 @@ const Planet2 = () => {
 	);
 };
 
+useLoader.preload(FBXLoader, "./3d/planet/planet2.fbx");
+
 export default Planet2;

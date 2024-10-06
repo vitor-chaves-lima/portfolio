@@ -1,12 +1,13 @@
-import { forwardRef, PropsWithChildren, useRef } from "react";
+import { FormEvent, forwardRef, PropsWithChildren, useRef } from "react";
 import { ScrollProvider } from "../contexts/ScrollProvider.tsx";
 import { Loader } from "@react-three/drei";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Container from "../components/Container.tsx";
 import Scene from "../components/Scene.tsx";
 import SmoothScroller from "../components/SmoothScroller.tsx";
 import Scrollbar from "smooth-scrollbar";
 import GitHubCalendar from "react-github-calendar";
+import { Rocket } from "lucide-react";
 
 import ReactLogo from "../assets/images/react-logo.png";
 import JavascriptLogo from "../assets/images/javascript-logo.png";
@@ -20,6 +21,8 @@ import TerraformLogo from "../assets/images/terraform-logo.png";
 import Race4Green from "../assets/images/race4green.png";
 import WiseWave from "../assets/images/wise-wave.png";
 import AirbnbReplica from "../assets/images/airbnb-replica.png";
+import LinkedInLogo from "../assets/images/linkedin-logo.png";
+import GitHubLogo from "../assets/images/github-logo.png";
 
 const Section = forwardRef<HTMLDivElement, PropsWithChildren>(
 	({ children }, ref) => (
@@ -193,32 +196,42 @@ const ProjectsSection = forwardRef<HTMLDivElement>((_, ref) => (
 				</div>
 
 				<div className="flex gap-16 justify-center items-center">
-					<NavLink to={"/projects/race4green"}>
+					<Link to={"/projects/race4green"}>
 						<div className="flex flex-col text-center gap-8">
-							<img src={Race4Green} className="w-64"></img>
+							<img
+								src={Race4Green}
+								alt="Race4Green image"
+								className="w-64"
+							></img>
 							<h4>Race 4 Green</h4>
 						</div>
-					</NavLink>
+					</Link>
 
-					<NavLink to={"/projects/wise-wave"}>
+					<Link to={"/projects/wise-wave"}>
 						<div className="flex flex-col text-center gap-8">
-							<img src={WiseWave} className="w-64"></img>
+							<img
+								src={WiseWave}
+								alt="Wise Wave image"
+								className="w-64"
+							></img>
 							<h4>Wise Wave</h4>
 						</div>
-					</NavLink>
+					</Link>
 
-					<NavLink to={"/projects/airbnb-replica"}>
+					<Link to={"/projects/airbnb-replica"}>
 						<div className="flex flex-col text-center gap-8">
-							<img src={AirbnbReplica} className="w-64"></img>
+							<img
+								src={AirbnbReplica}
+								alt="Airbnb replica image"
+								className="w-64"
+							></img>
 							<h4>Airbnb Replica</h4>
 						</div>
-					</NavLink>
+					</Link>
 				</div>
 
 				<div className="flex justify-end p-5">
-					<NavLink to={"/projects"}>
-						{"See other projects >>"}
-					</NavLink>
+					<Link to={"/projects"}>{"See other projects >>"}</Link>
 				</div>
 			</div>
 		</Container>
@@ -227,15 +240,122 @@ const ProjectsSection = forwardRef<HTMLDivElement>((_, ref) => (
 
 const ShipAnimationSection = forwardRef<HTMLDivElement>((_, ref) => (
 	<Section ref={ref}>
-		<div className="h-screen"></div>
+		<div className="h-[150vh]"></div>
 	</Section>
 ));
 
-const ContactSection = forwardRef<HTMLDivElement>((_, ref) => (
-	<Section ref={ref}>
-		<div className="h-screen"></div>
-	</Section>
-));
+const ContactSection = forwardRef<HTMLDivElement>((_, ref) => {
+	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+
+		const form = event.currentTarget;
+		const formData = new FormData(form);
+
+		const formEntries = Array.from(formData.entries()).reduce(
+			(acc, [key, value]) => ({ ...acc, [key]: value }),
+			{}
+		);
+
+		console.log(formEntries);
+	};
+
+	return (
+		<Section ref={ref}>
+			<Container>
+				<div className="text-white w-full flex flex-col gap-24">
+					<div className="flex flex-col items-center gap-14 py-4">
+						<h1 className="bg-indigo-700 text-2xl p-4 font-bold">
+							Get in Touch
+						</h1>
+
+						<h2 className="text-2xl p-4 font-light">
+							Let’s work together to bring ideas to life
+						</h2>
+					</div>
+
+					<div className="flex gap-16 flex-wrap xl:flex-nowrap mb-40">
+						<div className="w-full xl:w-1/2">
+							<form
+								className="flex flex-col gap-6"
+								onSubmit={handleSubmit}
+							>
+								<div className="flex flex-col gap-3">
+									<label htmlFor="fname">First Name</label>
+									<input
+										type="text"
+										id="fname"
+										name="firstname"
+										placeholder="Your name.."
+										className="p-2 text-neutral-900"
+									/>
+								</div>
+
+								<div className="flex flex-col gap-3">
+									<label htmlFor="email">Emal</label>
+									<input
+										type="email"
+										id="email"
+										name="email"
+										placeholder="Your email.."
+										className="p-2 text-neutral-900"
+									/>
+								</div>
+
+								<div className="flex flex-col gap-3">
+									<label htmlFor="subject">Subject</label>
+									<textarea
+										id="subject"
+										name="subject"
+										placeholder="Write something.."
+										className="p-5 text-neutral-900"
+										rows={4}
+									></textarea>
+								</div>
+
+								<input
+									type="submit"
+									value="Submit"
+									className="bg-indigo-700 p-3 cursor-pointer"
+								/>
+							</form>
+						</div>
+
+						<div className="w-full xl:w-1/2 flex flex-col text-center items-center gap-14">
+							<h3 className="text-xl">Find Me on Social Media</h3>
+
+							<div className={"flex gap-10"}>
+								<Link
+									to={
+										"https://www.linkedin.com/in/vitor-chaves-lima/"
+									}
+									target={"_blank"}
+								>
+									<img
+										alt="LinkedIn logo"
+										src={LinkedInLogo}
+										className={"h-16"}
+									/>
+								</Link>
+
+								<Link
+									to={"https://github.com/vitor-chaves-lima"}
+									target={"_blank"}
+									className={"h-24"}
+								>
+									<img
+										alt="Github logo"
+										src={GitHubLogo}
+										className={"h-16"}
+									/>
+								</Link>
+							</div>
+						</div>
+					</div>
+				</div>
+			</Container>
+		</Section>
+	);
+});
 
 const LandingPage = () => {
 	const contentContainerRef = useRef<HTMLDivElement>(null!);
@@ -274,6 +394,11 @@ const LandingPage = () => {
 				<ProjectsSection ref={projectsSectionRef} />
 				<ShipAnimationSection ref={shipAnimationRef} />
 				<ContactSection />
+
+				<footer className="p-16 bg-indigo-700 flex items-center justify-center text-white gap-5">
+					<p>Made by Vitor Chaves</p>
+					<Rocket />
+				</footer>
 			</div>
 
 			<Loader />

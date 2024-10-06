@@ -1,4 +1,4 @@
-import { useFrame, useLoader } from "@react-three/fiber";
+import { useLoader } from "@react-three/fiber";
 import { Euler, Vector3 } from "three";
 import { useSectionProgress } from "../../contexts/ScrollContext.tsx";
 import { useTransform } from "framer-motion";
@@ -10,13 +10,9 @@ const Fighter2 = () => {
 	const model = useLoader(FBXLoader, "3d/fighter/fighter2.fbx");
 
 	const initialRotation = new Euler(0, 1.51, 0);
-	const initialPosition = new Vector3(-35, 1, 2);
+	const initialPosition = new Vector3(-35, 5, 2);
 
 	const sectionProgress = useSectionProgress("shipAnimationRef");
-
-	useFrame(() => {
-		console.log(sectionProgress.get());
-	});
 
 	const xRotationTransform = useTransform(
 		() => initialRotation.x + sectionProgress.get() * 1.7
