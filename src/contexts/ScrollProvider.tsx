@@ -76,6 +76,8 @@ export const ScrollProvider: FC<{
 
 			if (!currentSection) return;
 
+			console.log(currentSection);
+
 			if (currentSection && currentSection != sectionKey.current)
 				sectionKey.current = currentSection;
 
